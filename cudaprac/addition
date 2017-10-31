@@ -1,0 +1,18 @@
+#include<stdio.h>
+__global__ void addition(int a, int b, int *c)
+{
+ *c=a+b;
+}
+int main()
+{
+ int a, b,c;
+ int *add;
+ a=4;
+ b=4;
+ cudaMalloc((void**)&add,sizeof(int));
+ addition<<<1,1>>>(a,b,add);
+ cudaMemcpy(&c,add,sizeof(int),cudaMemcpyDeviceToHost);
+printf("%d+%d=%d",a,b,c);
+cudaFree(add);
+return 0;
+}

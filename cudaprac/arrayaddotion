@@ -1,0 +1,39 @@
+#include<stdio.h>
+#define arr 5
+__global__ void arrayadd(int *a, int *b, int *c1)
+{
+ int threadIdx=blockIdx.x;
+ if(threadIdx<arr)
+  {
+   c1[threadIdx]=a[threadIdx]+b[threadIdx];
+  }
+}
+int main()
+{
+ int a1[arr], b1[arr], c1[arr];
+ int *dev_a,*dev_b,*dev_c;
+ printf("enter first array \n");
+ for(int i=0;i<arr;i++)
+ {
+  scanf("%d",&a1[i]);
+ }
+printf("Enter second array \n");
+for(int i=0;i<arr;i++)
+{
+ scanf("%d",&b1[i]);
+}
+
+cudaMalloc((void**)&dev_a,arr*sizeof(int));
+cudaMalloc((void**)&dev_b, arr*sizeof(int));
+cudaMalloc((void**)&dev_c,arr*sizeof(int));
+cudaMemcpy(dev_a,a1,arr*sizeof(int),cudaMemcpyHostToDevice);
+cudaMemcpy(dev_b,b1,arr*sizeof(int),cudaMemcpyHostToDevice);
+arrayadd<<<arr,1>>>(dev_a,dev_b,dev_c);
+cudaMemcpy(c1,dev_c,arr*sizeof(int),cudaMemcpyDeviceToHost);
+printf("Array Addition \n");
+for(int i=0;i<arr;i++)
+{
+ printf("%d+%d=%d \n",a1[i],b1[i],c1[i]);
+}
+cudaFree(dev_c);
+}

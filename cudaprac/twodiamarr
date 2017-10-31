@@ -1,0 +1,53 @@
+#include<stdio.h>
+#define row 2
+#define colum 2
+
+__global__ void arrayadd(int *a, int *b, int *c1)
+{
+ int tIdx=blockIdx.x;
+ int tIdy=blockIdx.y;
+ int i=(colum*tIdy)+ tIdx;
+ //int i=blockIdx.x*blockDim.x+threadIdx.x;
+   c1[i]=a[i]+b[i];
+}
+int main()
+{
+ int a1[row][colum], b1[row][colum], c1[row][colum];
+ int *dev_a,*dev_b,*dev_c, i,j;
+ printf("enter first array \n");
+ for(i=0;i<row;i++)
+ {
+
+  for(j=0;j<colum;j++)
+ {
+  scanf("%d",&a1[i][j]);
+ } 
+  
+ }
+printf("Enter second array \n");
+for(i=0;i<row;i++)
+{
+ for(j=0;j<colum;j++)
+ {
+ scanf("%d",&b1[i][j]);
+ }
+}
+
+cudaMalloc((void**)&dev_a,row*colum*sizeof(int));
+cudaMalloc((void**)&dev_b, row*colum*sizeof(int));
+cudaMalloc((void**)&dev_c,row*colum*sizeof(int));
+cudaMemcpy(dev_a,a1,row*colum*sizeof(int),cudaMemcpyHostToDevice);
+cudaMemcpy(dev_b,b1,row*colum*sizeof(int),cudaMemcpyHostToDevice);
+dim3 grid(row,colum);
+arrayadd<<<grid,1>>>(dev_a,dev_b,dev_c);
+cudaMemcpy(c1,dev_c,row*colum*sizeof(int),cudaMemcpyDeviceToHost);
+printf("Array Addition \n");
+for(i=0;i<row;i++)
+ {
+ for(j=0;j<colum;j++)
+  {
+   printf("%d+%d=%d\n",a1[i][j],b1[i][j],c1[i][j]);
+  }
+ }
+cudaFree(dev_c);
+}
